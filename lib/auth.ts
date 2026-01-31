@@ -74,7 +74,7 @@ export const authOptions: NextAuthOptions = {
             if (user) {
                 token.id = user.id;
                 token.role = (user as any).role;
-                token.phone = (user as any).email; // Using email field as phone
+                token.phone = (user as any).phone; // Corrected to use phone field
             }
             return token;
         },

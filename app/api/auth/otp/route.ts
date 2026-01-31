@@ -9,8 +9,8 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Invalid phone number" }, { status: 400 });
         }
 
-        // Generate 6 digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        // Generate 6 digit OTP (FIXED FOR DEMO)
+        const otp = "123456"; // Math.floor(100000 + Math.random() * 900000).toString();
         const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes expiry
 
         // Check if user exists, if not calculate "Connect" logic later
