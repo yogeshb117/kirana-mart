@@ -4,8 +4,9 @@ import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { useCartStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Trash2, Plus, Minus } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 export default function CartPage() {
     const { items, removeItem, updateQuantity, total, clearCart } = useCartStore();
@@ -13,6 +14,19 @@ export default function CartPage() {
     const [formData, setFormData] = useState({ name: '', phone: '', address: '', payment: 'COD' });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
+    const { data: session } = useSession(); // Get session data
+
+    // Pre-fill form when session loads or step changes
+    useEffect(() => {
+        if (session?.user && checkoutStep === 'details') {
+            setFormData(prev => ({
+                ...prev,
+                name: session.user.name || prev.name,
+                phone: session.user.phone || prev.phone,
+                // We might not have address in session yet, but that's fine
+            }));
+        }
+    }, [session, checkoutStep]);
 
     const handleCheckout = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -34,7 +48,8 @@ export default function CartPage() {
                     userPhone: formData.phone,
                     userName: formData.name,
                     userAddress: formData.address,
-                    slot: 'Today' // Default
+                    slot: 'Today', // Default
+                    userId: session?.user?.id // Pass User ID if logged in
                 })
             });
 

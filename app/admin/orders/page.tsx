@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { OrderStatusSelect } from '@/components/admin/OrderStatusSelect';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,12 +46,10 @@ export default async function AdminOrdersPage() {
                                 </td>
                                 <td className="p-4 font-bold">₹{order.total}</td>
                                 <td className="p-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-bold ${order.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                                        order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
-                                            'bg-gray-100 text-gray-800'
-                                        }`}>
-                                        {order.status}
-                                    </span>
+                                    <OrderStatusSelect
+                                        orderId={order.id}
+                                        currentStatus={order.status}
+                                    />
                                 </td>
                                 <td className="p-4 text-xs text-gray-500">
                                     {new Date(order.createdAt).toLocaleDateString()}

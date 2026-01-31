@@ -13,10 +13,14 @@ model User {
   phone     String   @unique
   role      String   @default("CUSTOMER") // ADMIN, CUSTOMER
   name      String?
+  password   String?
+  otp        String?       // Stores the latest OTP
+  otpExpires DateTime?     // Expiration time for the OTP
   address   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orders    Order[]
+  notifications Notification[]
 }
 
 model Category {
@@ -64,4 +68,14 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int
   price     Float
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  read      Boolean  @default(false)
+  orderId   String?
+  createdAt DateTime @default(now())
 }

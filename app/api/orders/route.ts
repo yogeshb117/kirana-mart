@@ -13,9 +13,10 @@ const OrderSchema = z.object({
     total: z.number(),
     paymentMethod: z.enum(['COD', 'UPI']),
     slot: z.string().optional(),
-    userPhone: z.string(), // Simple auth for now
+    userPhone: z.string(),
     userName: z.string(),
-    userAddress: z.string()
+    userAddress: z.string(),
+    userId: z.string().optional() // Add userId optional validation
 });
 
 export async function POST(request: Request) {
@@ -23,34 +24,58 @@ export async function POST(request: Request) {
         const body = await request.json();
         const data = OrderSchema.parse(body);
 
-        // Find or create user
-        let user = await prisma.user.findUnique({
-            where: { phone: data.userPhone }
-        });
+        let userId = data.userId;
 
-        if (!user) {
-            user = await prisma.user.create({
-                data: {
-                    phone: data.userPhone,
-                    name: data.userName,
-                    address: data.userAddress,
-                    role: 'CUSTOMER'
-                }
+        // If no userId provided, or if provided but we want to ensure user exists/update details
+        if (userId) {
+            // Confirm user exists
+            const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+            if (!existingUser) {
+                userId = undefined; // Fallback to phone logic if ID is invalid
+            } else {
+                // Update phone/address if needed
+                await prisma.user.update({
+                    where: { id: userId },
+                    data: {
+                        name: data.userName,
+                        address: data.userAddress
+                        // Phone is unique ID, do not update it here
+                    }
+                });
+            }
+        }
+
+        if (!userId) {
+            // Fallback: Find or create by phone
+            let user = await prisma.user.findUnique({
+                where: { phone: data.userPhone }
             });
-        } else {
-            // Update details if provided
-            await prisma.user.update({
-                where: { id: user.id },
-                data: {
-                    name: data.userName,
-                    address: data.userAddress
-                }
-            });
+
+            if (!user) {
+                user = await prisma.user.create({
+                    data: {
+                        phone: data.userPhone,
+                        name: data.userName,
+                        address: data.userAddress,
+                        role: 'CUSTOMER'
+                    }
+                });
+            } else {
+                // Update details
+                await prisma.user.update({
+                    where: { id: user.id },
+                    data: {
+                        name: data.userName,
+                        address: data.userAddress
+                    }
+                });
+            }
+            userId = user.id;
         }
 
         const order = await prisma.order.create({
             data: {
-                userId: user.id,
+                userId: userId,
                 total: data.total,
                 paymentMethod: data.paymentMethod,
                 slot: data.slot,

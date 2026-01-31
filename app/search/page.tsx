@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { ProductList } from '@/components/ProductList';
-import { SearchInput } from '@/components/SearchInput';
+
 
 export const dynamic = 'force-dynamic';
 
@@ -17,8 +17,8 @@ export default async function SearchPage({
     }
     if (q && typeof q === 'string') {
         where.OR = [
-            { nameEn: { contains: q } },
-            { nameHi: { contains: q } },
+            { nameEn: { contains: q, mode: 'insensitive' } },
+            { nameHi: { contains: q, mode: 'insensitive' } },
         ];
     }
 
@@ -29,7 +29,7 @@ export default async function SearchPage({
     return (
         <div className="container mx-auto pb-20">
             <div className="p-4 bg-white border-b sticky top-16 z-10 space-y-3">
-                <SearchInput />
+
                 <div className="flex justify-between items-center">
                     <h1 className="font-bold text-sm text-gray-700">
                         {q ? `Results for "${q}"` : (categoryId ? 'Category Products' : 'All Products')}
