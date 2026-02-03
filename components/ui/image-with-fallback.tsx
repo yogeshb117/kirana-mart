@@ -1,10 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { ComponentProps, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { ImageIcon } from 'lucide-react';
+import Image from 'next/image';
 
-interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+interface ImageWithFallbackProps extends Omit<ComponentProps<typeof Image>, 'src' | 'alt'> {
+    src?: string | null;
+    alt?: string;
     fallbackText?: string;
 }
 
@@ -21,12 +24,16 @@ export function ImageWithFallback({ src, alt, className, fallbackText, ...props 
     }
 
     return (
-        <img
-            src={src}
-            alt={alt}
-            className={cn("object-cover w-full h-full", className)}
-            onError={() => setError(true)}
-            {...props}
-        />
+        <div className={cn("relative overflow-hidden w-full h-full", className)}>
+            <Image
+                src={src}
+                alt={alt || 'Product Image'}
+                fill
+                className="object-cover"
+                onError={() => setError(true)}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                {...props}
+            />
+        </div>
     );
 }

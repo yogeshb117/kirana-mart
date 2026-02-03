@@ -82,6 +82,8 @@ model Order {
   status        String      @default("PENDING") // PENDING, CONFIRMED, DELIVERED, CANCELLED
   paymentMethod String      // COD, UPI
   slot          String?     // Morning, Evening
+  couponCode    String?
+  discount      Float       @default(0)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   items         OrderItem[]
@@ -115,5 +117,17 @@ model Review {
   productId String
   user      User     @relation(fields: [userId], references: [id])
   product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Coupon {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  type      String   // "PERCENT" | "FLAT"
+  value     Float
+  minOrder  Float    @default(0)
+  maxDiscount Float? // Optional cap for percentage based coupons
+  expiresAt DateTime?
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 }

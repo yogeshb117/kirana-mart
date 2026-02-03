@@ -7,6 +7,7 @@ import { Trash2, Plus, Minus } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { PaymentSummary } from '@/components/cart/PaymentSummary';
 
 export default function CartPage() {
     const { items, removeItem, updateQuantity, total, clearCart } = useCartStore();
@@ -15,6 +16,7 @@ export default function CartPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
     const { data: session } = useSession(); // Get session data
+    const [coupon, setCoupon] = useState<{ code: string; discount: number } | null>(null);
 
     // Pre-fill form when session loads or step changes
     useEffect(() => {
@@ -43,13 +45,15 @@ export default function CartPage() {
                 method: 'POST',
                 body: JSON.stringify({
                     items: items.map(i => ({ productId: i.id, quantity: i.quantity, price: i.price })),
-                    total: total(),
+                    total: Math.max(0, total() - (coupon?.discount || 0)),
                     paymentMethod: formData.payment,
                     userPhone: formData.phone,
                     userName: formData.name,
                     userAddress: formData.address,
                     slot: 'Today', // Default
-                    userId: session?.user?.id // Pass User ID if logged in
+                    userId: session?.user?.id, // Pass User ID if logged in
+                    couponCode: coupon?.code,
+                    discount: coupon?.discount || 0
                 })
             });
 
@@ -107,6 +111,7 @@ export default function CartPage() {
                 </div>
             ) : (
                 <form onSubmit={handleCheckout} className="space-y-4 bg-white p-4 rounded-lg shadow-sm">
+                    {/* ... (address fields same as before) */}
                     <div>
                         <label className="block text-sm font-medium mb-1">Name</label>
                         <input required className="w-full border rounded p-2" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
@@ -139,6 +144,13 @@ export default function CartPage() {
                             <option value="UPI">UPI (Pay on Delivery)</option>
                         </select>
                     </div>
+
+                    <PaymentSummary
+                        total={total()}
+                        currentCoupon={coupon}
+                        onApplyCoupon={(discount, code) => setCoupon({ discount, code })}
+                        onRemoveCoupon={() => setCoupon(null)}
+                    />
 
                     <div className="flex gap-2 pt-4">
                         <Button type="button" variant="outline" className="flex-1" onClick={() => setCheckoutStep('cart')}>Back</Button>

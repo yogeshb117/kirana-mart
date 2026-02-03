@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LayoutDashboard, Package, ShoppingBag } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingBag, TicketPercent } from 'lucide-react';
 import { NotificationBell } from '@/components/NotificationBell';
 
 export default function AdminLayout({
@@ -20,6 +20,9 @@ export default function AdminLayout({
                     </Link>
                     <Link href="/admin/products" className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded text-gray-700">
                         <Package className="h-5 w-5" /> Inventory
+                    </Link>
+                    <Link href="/admin/coupons" className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded text-gray-700">
+                        <TicketPercent className="h-5 w-5" /> Coupons
                     </Link>
                 </nav>
             </aside>

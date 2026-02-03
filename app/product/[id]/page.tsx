@@ -2,6 +2,8 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { ProductAddButton } from '@/components/ProductAddButton';
+import { ImageWithFallback } from '@/components/ui/image-with-fallback';
+import { BuyNowButton } from '@/components/BuyNowButton';
 import { WishlistButton } from '@/components/WishlistButton';
 import { ReviewForm } from '@/components/reviews/ReviewForm';
 import { ReviewList } from '@/components/reviews/ReviewList';
@@ -28,7 +30,8 @@ export default async function ProductPage(props: Props) {
             category: true,
             reviews: {
                 include: { user: { select: { name: true } } },
-                orderBy: { createdAt: 'desc' }
+                orderBy: { createdAt: 'desc' },
+                take: 5
             }
         }
     });
@@ -52,11 +55,13 @@ export default async function ProductPage(props: Props) {
                         <WishlistButton productId={product.id} initialLiked={isWishlisted} />
                     </div>
                     {product.image ? (
-                        <img
-                            src={product.image}
-                            alt={product.nameEn}
-                            className="w-full h-full object-contain mix-blend-multiply"
-                        />
+                        <div className="w-full h-full relative">
+                            <ImageWithFallback
+                                src={product.image}
+                                alt={product.nameEn}
+                                className="object-contain" // mix-blend-multiply might not work well with next/image unless handled carefully, keeping it clean for now or adding back if transparent
+                            />
+                        </div>
                     ) : (
                         <div className="text-gray-300 flex flex-col items-center">
                             <span className="text-6xl">🥬</span>
@@ -93,8 +98,13 @@ export default async function ProductPage(props: Props) {
                         {product.description || 'No description available for this product.'}
                     </p>
 
-                    <div className="pt-6 border-t border-gray-100">
-                        <ProductAddButton product={product} />
+                    <div className="pt-6 border-t border-gray-100 flex items-center gap-4">
+                        <div className="w-1/3">
+                            <ProductAddButton product={product} />
+                        </div>
+                        <div className="flex-1">
+                            <BuyNowButton product={product} />
+                        </div>
                     </div>
 
                     <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 text-sm text-blue-800 flex gap-3">
@@ -121,7 +131,7 @@ export default async function ProductPage(props: Props) {
                 </div>
 
                 <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                    <ReviewList reviews={product.reviews} />
+                    <ReviewList initialReviews={product.reviews} productId={product.id} />
                 </div>
             </div>
         </div>

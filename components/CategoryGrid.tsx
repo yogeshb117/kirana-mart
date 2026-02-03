@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -27,10 +28,12 @@ function CategoryCard({ category }: { category: any }) {
         >
             <div className="aspect-square w-full relative mb-2 bg-gray-100 rounded-md overflow-hidden">
                 {!imageError && category.image ? (
-                    <img
+                    <Image
                         src={category.image}
                         alt={category.nameEn}
-                        className="object-cover w-full h-full group-hover:scale-105 transition-transform"
+                        fill
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        className="object-cover group-hover:scale-105 transition-transform"
                         onError={() => setImageError(true)}
                     />
                 ) : (

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ShoppingCart, Search, Menu, MapPin, User, LogOut, Package, Heart } from 'lucide-react';
 import { useCartStore } from '@/lib/store';
 import { Button } from './ui/button';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useSession, signOut } from "next-auth/react";
 import { NotificationBell } from './NotificationBell';
@@ -72,7 +73,7 @@ export function Navbar() {
                     <Link href="/" className="flex items-center gap-3 group">
                         <div className="relative">
                             <div className="absolute -inset-1 rounded-full bg-emerald-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
-                            <img src="/logo-cartoon.png" alt="Shubh Lakshmi Kirana Mart" className="relative h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
+                            <Image src="/logo-cartoon.png" alt="Shubh Lakshmi Kirana Mart" width={120} height={56} priority className="relative h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
                         </div>
                         <span className="hidden lg:block text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 to-emerald-500 font-heading tracking-tight">
                             Shubh Lakshmi

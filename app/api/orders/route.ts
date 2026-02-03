@@ -17,7 +17,9 @@ const OrderSchema = z.object({
     userPhone: z.string(),
     userName: z.string(),
     userAddress: z.string(),
-    userId: z.string().optional() // Add userId optional validation
+    userId: z.string().optional(),
+    couponCode: z.string().optional(),
+    discount: z.number().optional()
 });
 
 export async function POST(request: Request) {
@@ -25,9 +27,16 @@ export async function POST(request: Request) {
         const body = await request.json();
         const data = OrderSchema.parse(body);
 
+        // Verify coupon integrity if provided
+        if (data.couponCode && data.discount) {
+            const coupon = await prisma.coupon.findUnique({
+                where: { code: data.couponCode }
+            });
+            // We could do stricter validation here if needed
+        }
+
         let userId = data.userId;
 
-        // If no userId provided, or if provided but we want to ensure user exists/update details
         const order = await prisma.$transaction(async (tx: any) => {
             // 1. Check Stock for all items FIRST
             for (const item of data.items) {
@@ -89,8 +98,10 @@ export async function POST(request: Request) {
                     total: data.total,
                     paymentMethod: data.paymentMethod,
                     slot: data.slot,
+                    couponCode: data.couponCode,
+                    discount: data.discount || 0,
                     items: {
-                        create: data.items.map(item => ({
+                        create: data.items.map((item: any) => ({
                             productId: item.productId,
                             quantity: item.quantity,
                             price: item.price

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { CategorySidebar } from '@/components/layout/CategorySidebar';
 import { CartSidebar } from '@/components/layout/CartSidebar';
 import { ProductAddButton } from '@/components/ProductAddButton';
+import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -98,25 +99,21 @@ export default async function Home() {
 
                       {/* Image Container */}
                       <Link href={`/product/${product.id}`} className="block">
-                        <div className="aspect-[4/3] relative bg-gray-50 rounded-xl mb-4 overflow-hidden flex items-center justify-center p-2 isolate">
+                        <div className="aspect-[4/3] relative bg-gray-50 rounded-xl mb-4 overflow-hidden isolate">
                           {/* Wishlist Button - Absolute positioned, so it stays clickable on top if z-index is right */}
                           {/* Note: Nested interactive elements can be tricky. Better to keep Wishlist button outside Link or handle propagation.
                               But visually it's inside. Let's make the wrapper relative and put Link around image only?
                               Or assume WishlistButton handles stopPropagation (which I did adding e.stopPropagation).
                            */}
 
-                          {product.image ? (
-                            <img
-                              src={product.image}
+                          {/* Image Container with Fallback */}
+                          <div className="w-full h-full">
+                            <ImageWithFallback
+                              src={product.image || ''}
                               alt={product.nameEn}
-                              className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500"
+                              className="w-full h-full group-hover:scale-110 transition-transform duration-500"
                             />
-                          ) : (
-                            <div className="flex flex-col items-center justify-center text-gray-300">
-                              <span className="text-4xl mb-2">🥬</span>
-                              <span className="text-xs">No Image</span>
-                            </div>
-                          )}
+                          </div>
                         </div>
                       </Link>
 
@@ -144,7 +141,7 @@ export default async function Home() {
                             {/* <span className="text-xs text-gray-400 line-through">₹{product.price + 10}</span> */}
                             <span className="font-heading font-bold text-xl text-gray-900">₹{product.price}</span>
                           </div>
-                          <ProductAddButton product={product} />
+                          <ProductAddButton product={product} compact={true} />
                         </div>
                       </div>
                     </div>

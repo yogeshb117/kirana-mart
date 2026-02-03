@@ -13,7 +13,7 @@ interface Product {
     unit?: string | null;
 }
 
-export function ProductAddButton({ product }: { product: Product }) {
+export function ProductAddButton({ product, compact = false }: { product: Product; compact?: boolean }) {
     const { items, addItem, removeItem, updateQuantity } = useCartStore();
     const cartItem = items.find((i) => i.id === product.id);
     const quantity = cartItem?.quantity || 0;
@@ -44,13 +44,13 @@ export function ProductAddButton({ product }: { product: Product }) {
 
     if (quantity > 0) {
         return (
-            <div className="flex items-center bg-emerald-50 rounded-lg border border-emerald-200">
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-100" onClick={handleDecrement}>
-                    <Minus className="h-3 w-3" />
+            <div className={`flex items-center bg-emerald-50 rounded-lg border border-emerald-200 justify-between px-1 ${compact ? 'h-8 w-24' : 'h-11 w-full'}`}>
+                <Button variant="ghost" size="icon" className={`${compact ? 'h-6 w-6' : 'h-8 w-8'} text-emerald-700 hover:text-emerald-800 hover:bg-emerald-100`} onClick={handleDecrement}>
+                    <Minus className={`${compact ? 'h-3 w-3' : 'h-4 w-4'}`} />
                 </Button>
-                <span className="w-8 text-center text-sm font-bold text-emerald-700">{quantity}</span>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-100" onClick={handleIncrement}>
-                    <Plus className="h-3 w-3" />
+                <span className={`text-center font-bold text-emerald-700 ${compact ? 'text-sm w-6' : 'text-lg flex-1'}`}>{quantity}</span>
+                <Button variant="ghost" size="icon" className={`${compact ? 'h-6 w-6' : 'h-8 w-8'} text-emerald-700 hover:text-emerald-800 hover:bg-emerald-100`} onClick={handleIncrement}>
+                    <Plus className={`${compact ? 'h-3 w-3' : 'h-4 w-4'}`} />
                 </Button>
             </div>
         );
@@ -58,12 +58,11 @@ export function ProductAddButton({ product }: { product: Product }) {
 
     return (
         <Button
-            size="sm"
             variant="outline"
-            className="text-emerald-600 border-emerald-600 hover:bg-emerald-50 h-8 uppercase text-xs font-bold px-4"
+            className={`text-emerald-600 border-emerald-600 hover:bg-emerald-50 uppercase font-bold ${compact ? 'h-8 text-xs px-3' : 'h-11 w-full text-sm px-4'}`}
             onClick={handleAdd}
         >
-            Add
+            {compact ? 'Add' : 'Add to Cart'}
         </Button>
     );
 }

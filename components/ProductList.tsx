@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from './ui/button';
 import { useCartStore } from '@/lib/store';
 import { Plus, Minus } from 'lucide-react';
+import { WishlistButton } from './WishlistButton';
 
 interface Product {
     id: string;
@@ -16,7 +17,15 @@ interface Product {
     unit?: string | null;
 }
 
-export function ProductList({ products }: { products: Product[] }) {
+export function ProductList({
+    products,
+    showWishlistButton = false,
+    initialWishlistState
+}: {
+    products: Product[];
+    showWishlistButton?: boolean;
+    initialWishlistState?: boolean;
+}) {
     const { items, addItem, updateQuantity } = useCartStore();
 
     if (products.length === 0) {
@@ -38,6 +47,11 @@ export function ProductList({ products }: { products: Product[] }) {
                             <Link href={`/product/${product.id}`}>
                                 <div className="aspect-square bg-gray-100 rounded-md mb-2 overflow-hidden relative">
                                     <ImageWithFallback src={product.image || ''} alt={product.nameEn} />
+                                    {showWishlistButton && (
+                                        <div className="absolute top-2 right-2 z-10">
+                                            <WishlistButton productId={product.id} initialLiked={initialWishlistState} />
+                                        </div>
+                                    )}
                                 </div>
                             </Link>
                             <Link href={`/product/${product.id}`}>

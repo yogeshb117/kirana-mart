@@ -28,14 +28,17 @@ export async function addReview(productId: string, rating: number, comment: stri
     }
 }
 
-export async function getReviews(productId: string) {
+export async function getReviews(productId: string, page: number = 1, limit: number = 5) {
     try {
+        const skip = (page - 1) * limit;
         const reviews = await prisma.review.findMany({
             where: { productId },
             include: {
                 user: { select: { name: true } }
             },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
+            skip,
+            take: limit,
         });
         return reviews;
     } catch (error) {
