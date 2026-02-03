@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { addAddress, deleteAddress } from '@/app/actions/profile';
 import { Trash2, MapPin, Package } from 'lucide-react';
 import { AddAddressForm } from '@/components/AddAddressForm';
+import { DeleteAddressButton } from '@/components/DeleteAddressButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -72,11 +73,7 @@ export default async function ProfilePage() {
                                         <p className="font-bold">{addr.label || 'Address'}</p>
                                         <p className="text-sm">{addr.name}, {addr.phone}</p>
                                         <p className="text-sm text-gray-600 mt-1">{addr.details}</p>
-                                        <form action={deleteAddress.bind(null, addr.id)} className="mt-2">
-                                            <button className="text-red-500 text-xs hover:underline flex items-center gap-1">
-                                                <Trash2 className="h-3 w-3" /> Remove
-                                            </button>
-                                        </form>
+                                        <DeleteAddressButton addressId={addr.id} />
                                     </div>
                                 ))}
                             </div>

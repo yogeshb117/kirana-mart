@@ -57,7 +57,7 @@ export async function addAddress(formData: FormData) {
     }
 }
 
-export async function deleteAddress(addressId: string) {
+export async function deleteAddress(addressId: string, formData?: FormData) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
         return { error: 'Unauthorized' };
