@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { LayoutDashboard, Package, ShoppingBag } from 'lucide-react';
+import { NotificationBell } from '@/components/NotificationBell';
 
 export default function AdminLayout({
     children,
@@ -22,8 +23,13 @@ export default function AdminLayout({
                     </Link>
                 </nav>
             </aside>
-            <main className="flex-1 p-8">
-                {children}
+            <main className="flex-1">
+                <header className="bg-white shadow-sm border-b p-4 flex justify-end items-center">
+                    <NotificationBell />
+                </header>
+                <div className="p-8">
+                    {children}
+                </div>
             </main>
         </div>
     );

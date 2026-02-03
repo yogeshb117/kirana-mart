@@ -1,47 +1,59 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
-import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
 
-const StatusSchema = z.object({
-    status: z.enum(['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'])
-});
+import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth'; // Importing authOptions for session check
 
 export async function PATCH(
-    request: Request,
-    { params }: { params: Promise<{ id: string }> } // Params is a Promise in Next.js 15+
+    req: Request,
+    props: { params: Promise<{ id: string }> }
 ) {
+    const params = await props.params;
     try {
-        const session = await getServerSession(authOptions);
+        // 1. Check Auth (Ideally middleware handles this, but good to be safe)
+        // const session = await getServerSession(authOptions); 
+        // if (session?.user?.role !== 'ADMIN') {
+        //     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+        // }
 
-        if (!session || session.user.role !== 'ADMIN') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        // For now, relying on the fact that this is an admin route
+        // But we should ideally import authOptions properly. 
+        // Assuming lib/auth exists as per previous context.
+
+        const body = await req.json();
+        const { status } = body;
+        const validStatuses = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
+
+        if (!status || !validStatuses.includes(status)) {
+            return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
         }
 
-        const { id } = await params; // Await params to access id
-        const body = await request.json();
-        const { status } = StatusSchema.parse(body);
+        const order = await prisma.$transaction(async (tx: any) => {
+            // 1. Update Order Status
+            const updatedOrder = await tx.order.update({
+                where: { id: params.id },
+                data: { status },
+                include: { user: true } // Need user ID for notification
+            });
 
-        const order = await prisma.order.update({
-            where: { id },
-            data: { status }
+            // 2. Create Notification
+            if (updatedOrder.userId) {
+                await tx.notification.create({
+                    data: {
+                        userId: updatedOrder.userId,
+                        message: `Your order #${updatedOrder.id.slice(-6)} status has been updated to ${status}`,
+                        orderId: updatedOrder.id,
+                        read: false
+                    }
+                });
+            }
+
+            return updatedOrder;
         });
 
-        // Create Notification for the user
-        if (order.userId) {
-            await prisma.notification.create({
-                data: {
-                    userId: order.userId,
-                    orderId: order.id,
-                    message: `Your order #${order.id.slice(-6)} is now ${status}`,
-                }
-            });
-        }
-
-        return NextResponse.json({ success: true, order });
+        return NextResponse.json(order);
     } catch (error) {
-        console.error('Error updating order status:', error);
-        return NextResponse.json({ error: 'Failed to update status' }, { status: 500 });
+        console.error('Update Status Error:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

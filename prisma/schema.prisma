@@ -21,6 +21,18 @@ model User {
   updatedAt DateTime @updatedAt
   orders    Order[]
   notifications Notification[]
+  addresses Address[]
+}
+
+model Address {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  name      String
+  phone     String
+  details   String
+  label     String? // Home, Work
+  isDefault Boolean @default(false)
 }
 
 model Category {

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,66 +28,103 @@ export async function POST(request: Request) {
         let userId = data.userId;
 
         // If no userId provided, or if provided but we want to ensure user exists/update details
-        if (userId) {
-            // Confirm user exists
-            const existingUser = await prisma.user.findUnique({ where: { id: userId } });
-            if (!existingUser) {
-                userId = undefined; // Fallback to phone logic if ID is invalid
+        const order = await prisma.$transaction(async (tx: any) => {
+            // 1. Check Stock for all items FIRST
+            for (const item of data.items) {
+                const product = await tx.product.findUnique({
+                    where: { id: item.productId }
+                });
+
+                if (!product) {
+                    throw new Error(`Product not found: ${item.productId}`);
+                }
+
+                if (product.stock < item.quantity) {
+                    throw new Error(`Insufficient stock for "${product.nameEn}". Only ${product.stock} left.`);
+                }
+            }
+
+            // 2. Handle User (using tx)
+            if (!userId) {
+                // Fallback: Find or create by phone
+                let user = await tx.user.findUnique({
+                    where: { phone: data.userPhone }
+                });
+
+                if (!user) {
+                    user = await tx.user.create({
+                        data: {
+                            phone: data.userPhone,
+                            name: data.userName,
+                            address: data.userAddress,
+                            role: 'CUSTOMER'
+                        }
+                    });
+                } else {
+                    // Update details
+                    await tx.user.update({
+                        where: { id: user.id },
+                        data: {
+                            name: data.userName,
+                            address: data.userAddress
+                        }
+                    });
+                }
+                userId = user.id;
             } else {
-                // Update phone/address if needed
-                await prisma.user.update({
+                // Update existing user details if userId was passed
+                await tx.user.update({
                     where: { id: userId },
                     data: {
                         name: data.userName,
                         address: data.userAddress
-                        // Phone is unique ID, do not update it here
                     }
                 });
             }
-        }
 
-        if (!userId) {
-            // Fallback: Find or create by phone
-            let user = await prisma.user.findUnique({
-                where: { phone: data.userPhone }
+            // 3. Create Order
+            const newOrder = await tx.order.create({
+                data: {
+                    userId: userId,
+                    total: data.total,
+                    paymentMethod: data.paymentMethod,
+                    slot: data.slot,
+                    items: {
+                        create: data.items.map(item => ({
+                            productId: item.productId,
+                            quantity: item.quantity,
+                            price: item.price
+                        }))
+                    }
+                }
             });
 
-            if (!user) {
-                user = await prisma.user.create({
-                    data: {
-                        phone: data.userPhone,
-                        name: data.userName,
-                        address: data.userAddress,
-                        role: 'CUSTOMER'
-                    }
-                });
-            } else {
-                // Update details
-                await prisma.user.update({
-                    where: { id: user.id },
-                    data: {
-                        name: data.userName,
-                        address: data.userAddress
-                    }
+            // 4. Decrement Stock
+            for (const item of data.items) {
+                await tx.product.update({
+                    where: { id: item.productId },
+                    data: { stock: { decrement: item.quantity } }
                 });
             }
-            userId = user.id;
-        }
 
-        const order = await prisma.order.create({
-            data: {
-                userId: userId,
-                total: data.total,
-                paymentMethod: data.paymentMethod,
-                slot: data.slot,
-                items: {
-                    create: data.items.map(item => ({
-                        productId: item.productId,
-                        quantity: item.quantity,
-                        price: item.price
+            // 5. Notify Admins
+            const admins = await tx.user.findMany({
+                where: { role: 'ADMIN' },
+                select: { id: true }
+            });
+
+            if (admins.length > 0) {
+                await tx.notification.createMany({
+                    data: admins.map((admin: any) => ({
+                        userId: admin.id,
+                        message: `New Order #${newOrder.id.slice(-6)} placed by ${data.userName} for ₹${data.total}`,
+                        orderId: newOrder.id,
+                        read: false
                     }))
-                }
+                });
             }
+
+            return newOrder;
         });
 
         return NextResponse.json({ success: true, orderId: order.id });

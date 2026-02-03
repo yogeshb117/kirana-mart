@@ -1,0 +1,11 @@
+
+Running 7 tests using 2 workers
+
+[1A[2K[1/7] [chromium] ??? tests\auth.spec.ts:12:9 ??? Authentication ??? should validate phone input
+[1A[2K[2/7] [chromium] ??? tests\auth.spec.ts:5:9 ??? Authentication ??? should navigate to login page
+[1A[2K[3/7] [chromium] ??? tests\cart.spec.ts:5:9 ??? Shopping Cart ??? should add item to cart
+[1A[2K[4/7] [chromium] ??? tests\cart.spec.ts:28:9 ??? Shopping Cart ??? should open cart sidebar
+[1A[2K[5/7] [chromium] ??? tests\home.spec.ts:5:9 ??? Homepage ??? should display premium banner and navigation
+[1A[2K[6/7] [chromium] ??? tests\home.spec.ts:19:9 ??? Homepage ??? should display product categories or empty state
+[1A[2K[7/7] [chromium] ??? tests\orders.spec.ts:5:9 ??? Orders ??? should redirect unauthenticated users to login
+[1A[2K  7 passed (14.6s)

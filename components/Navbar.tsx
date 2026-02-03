@@ -123,9 +123,11 @@ export function Navbar() {
                             <div className="hidden md:flex items-center gap-3 pl-2 border-l border-gray-200">
                                 <NotificationBell />
                                 <div className="flex items-center gap-2">
-                                    <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm border border-emerald-200">
-                                        {session.user?.name?.charAt(0) || 'U'}
-                                    </div>
+                                    <Link href="/profile">
+                                        <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm border border-emerald-200 cursor-pointer hover:bg-emerald-200 transition-colors">
+                                            {session.user?.name?.charAt(0) || 'U'}
+                                        </div>
+                                    </Link>
                                     <Button
                                         variant="ghost"
                                         size="icon"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Loader2, ArrowRight, Phone } from "lucide-react";
 
@@ -56,7 +56,13 @@ export default function LoginPage() {
             if (res?.error) {
                 setError(res.error); // NextAuth error
             } else {
-                router.push("/");
+                // Check if user is admin
+                const session = await getSession();
+                if (session?.user?.role === 'ADMIN') {
+                    router.push("/admin");
+                } else {
+                    router.push("/");
+                }
                 router.refresh();
             }
         } catch (err) {

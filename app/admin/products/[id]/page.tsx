@@ -1,20 +1,26 @@
+
 import { prisma } from '@/lib/prisma';
-import { ProductEditForm } from './product-form';
+import { ProductForm } from '@/components/admin/ProductForm';
+import { notFound } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
+interface Props {
+    params: { id: string };
+}
 
-export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
-
-    const product = await prisma.product.findUnique({
-        where: { id }
-    });
-
-    const categories = await prisma.category.findMany();
+export default async function EditProductPage({ params }: Props) {
+    const [product, categories] = await Promise.all([
+        prisma.product.findUnique({ where: { id: params.id } }),
+        prisma.category.findMany({ select: { id: true, nameEn: true }, orderBy: { nameEn: 'asc' } })
+    ]);
 
     if (!product) {
-        return <div className="p-8">Product not found</div>;
+        notFound();
     }
 
-    return <ProductEditForm product={product} categories={categories} />;
+    return (
+        <div>
+            <h1 className="text-2xl font-bold mb-6">Edit Product</h1>
+            <ProductForm categories={categories} product={product} />
+        </div>
+    );
 }

@@ -36,14 +36,15 @@ export function OrderStatusSelect({ orderId, currentStatus }: OrderStatusSelectP
             });
 
             if (!res.ok) {
-                throw new Error('Failed to update status');
+                const data = await res.json();
+                throw new Error(data.error || 'Failed to update status');
             }
 
             router.refresh();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error updating status:', error);
             setStatus(currentStatus); // Revert on error
-            alert('Failed to update status');
+            alert(error.message || 'Failed to update status');
         } finally {
             setIsLoading(false);
         }

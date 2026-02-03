@@ -92,8 +92,16 @@ export function NotificationBell() {
                         ) : (
                             <ul className="divide-y divide-gray-100">
                                 {notifications.slice(0, 5).map((notification) => (
-                                    <li key={notification.id} className={`p-3 hover:bg-gray-50 ${!notification.read ? 'bg-green-50/50' : ''}`}>
-                                        <p className="text-sm text-gray-800">{notification.message}</p>
+                                    <li
+                                        key={notification.id}
+                                        className={`p-3 hover:bg-gray-50 cursor-pointer transition-colors ${!notification.read ? 'bg-green-50/50' : ''}`}
+                                        onClick={() => {
+                                            setIsOpen(false);
+                                            const isAdmin = window.location.pathname.startsWith('/admin');
+                                            router.push(isAdmin ? '/admin/orders' : '/orders');
+                                        }}
+                                    >
+                                        <p className="text-sm text-gray-800 font-medium">{notification.message}</p>
                                         <p className="text-xs text-gray-400 mt-1">
                                             {new Date(notification.createdAt).toLocaleDateString()}
                                         </p>

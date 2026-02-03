@@ -1,0 +1,66 @@
+
+Running 7 tests using 2 workers
+
+[1A[2K[1/7] [chromium] ??? tests\auth.spec.ts:12:9 ??? Authentication ??? should validate phone input
+[1A[2K[2/7] [chromium] ??? tests\auth.spec.ts:5:9 ??? Authentication ??? should navigate to login page
+[1A[2K[3/7] [chromium] ??? tests\cart.spec.ts:5:9 ??? Shopping Cart ??? should add item to cart
+[1A[2K[4/7] [chromium] ??? tests\cart.spec.ts:28:9 ??? Shopping Cart ??? should open cart sidebar
+[1A[2K[5/7] [chromium] ??? tests\home.spec.ts:5:9 ??? Homepage ??? should display premium banner and navigation
+[1A[2K  1) [chromium] ??? tests\cart.spec.ts:28:9 ??? Shopping Cart ??? should open cart sidebar ?????????????????????????????????????????????
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Shopping Cart')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('Shopping Cart')[22m
+
+
+      35 |         await page.click('header a[href="/cart"]');
+      36 |         await expect(page).toHaveURL(/\/cart/);
+    > 37 |         await expect(page.getByText('Shopping Cart')).toBeVisible();
+         |                                                       ^
+      38 |     });
+      39 | });
+      40 |
+        at C:\Users\bhart\.gemini\antigravity\scratch\kirana-mart\tests\cart.spec.ts:37:55
+
+    Error Context: test-results\cart-Shopping-Cart-should-open-cart-sidebar-chromium\error-context.md
+
+
+[1A[2K  2) [chromium] ??? tests\home.spec.ts:5:9 ??? Homepage ??? should display premium banner and navigation ???
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByPlaceholder('Search products...')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByPlaceholder('Search products...')[22m
+
+
+      14 |
+      15 |         // Check Search Bar
+    > 16 |         await expect(page.getByPlaceholder('Search products...')).toBeVisible();
+         |                                                                   ^
+      17 |     });
+      18 |
+      19 |     test('should display product categories or empty state', async ({ page }) => {
+        at C:\Users\bhart\.gemini\antigravity\scratch\kirana-mart\tests\home.spec.ts:16:67
+
+    Error Context: test-results\home-Homepage-should-display-premium-banner-and-navigation-chromium\error-context.md
+
+
+[1A[2K[6/7] [chromium] ??? tests\home.spec.ts:19:9 ??? Homepage ??? should display product categories or empty state
+[1A[2K[7/7] [chromium] ??? tests\orders.spec.ts:5:9 ??? Orders ??? should redirect unauthenticated users to login
+[1A[2K  2 failed
+    [chromium] ??? tests\cart.spec.ts:28:9 ??? Shopping Cart ??? should open cart sidebar ????????????????????????????????????????????????
+    [chromium] ??? tests\home.spec.ts:5:9 ??? Homepage ??? should display premium banner and navigation ??????
+  5 passed (18.1s)
