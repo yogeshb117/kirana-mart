@@ -23,6 +23,7 @@ model User {
   notifications Notification[]
   addresses Address[]
   wishlist  WishlistItem[]
+  reviews   Review[]
 }
 
 model Address {
@@ -59,6 +60,7 @@ model Product {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   wishlist    WishlistItem[]
+  reviews     Review[]
 }
 
 model WishlistItem {
@@ -102,5 +104,16 @@ model Notification {
   message   String
   read      Boolean  @default(false)
   orderId   String?
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?
+  userId    String
+  productId String
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())
 }

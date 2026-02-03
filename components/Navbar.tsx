@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, Search, Menu, MapPin, User, LogOut, Package } from 'lucide-react';
+import { ShoppingCart, Search, Menu, MapPin, User, LogOut, Package, Heart } from 'lucide-react';
 import { useCartStore } from '@/lib/store';
 import { Button } from './ui/button';
 import { useEffect, useState } from 'react';
@@ -120,6 +120,13 @@ export function Navbar() {
                                 </Button>
                             </Link>
 
+                            <Link href="/wishlist" className="hidden lg:block">
+                                <Button variant="ghost" size="sm" className="gap-2 text-gray-700 hover:text-primary hover:bg-emerald-50 rounded-full">
+                                    <Heart className="h-4 w-4" />
+                                    <span>Wishlist</span>
+                                </Button>
+                            </Link>
+
                             <div className="hidden md:flex items-center gap-3 pl-2 border-l border-gray-200">
                                 <NotificationBell />
                                 <div className="flex items-center gap-2">
@@ -142,6 +149,11 @@ export function Navbar() {
 
                             {/* Mobile Logic */}
                             <div className="md:hidden flex items-center gap-1">
+                                <Link href="/wishlist">
+                                    <Button variant="ghost" size="icon">
+                                        <Heart className="h-5 w-5" />
+                                    </Button>
+                                </Link>
                                 <Link href="/orders">
                                     <Button variant="ghost" size="icon">
                                         <Package className="h-5 w-5" />

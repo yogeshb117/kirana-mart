@@ -1,11 +1,27 @@
 import { prisma } from '@/lib/prisma';
+import Link from 'next/link';
 import { CategorySidebar } from '@/components/layout/CategorySidebar';
 import { CartSidebar } from '@/components/layout/CartSidebar';
 import { ProductAddButton } from '@/components/ProductAddButton';
 
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { WishlistButton } from '@/components/WishlistButton';
+
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
+  const session = await getServerSession(authOptions);
+
+  let wishlistProductIds = new Set<string>();
+  if (session?.user?.id) {
+    const wishlist = await prisma.wishlistItem.findMany({
+      where: { userId: session.user.id },
+      select: { productId: true }
+    });
+    wishlistProductIds = new Set(wishlist.map(item => item.productId));
+  }
+
   const categories = await prisma.category.findMany({
     include: {
       products: {
@@ -50,9 +66,12 @@ export default async function Home() {
               <p className="text-lg text-emerald-50 opacity-90 mb-8 max-w-lg font-light leading-relaxed">
                 Experience the finest quality groceries delivered straight to your doorstep in Jamui. Fresh, reliable, and premium.
               </p>
-              <button className="bg-white text-emerald-700 font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl hover:bg-yellow-50 transition-all transform hover:-translate-y-1">
+              <Link
+                href={categories.length > 0 ? `#category-${categories[0].id}` : '#'}
+                className="bg-white text-emerald-700 font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl hover:bg-yellow-50 transition-all transform hover:-translate-y-1 inline-block"
+              >
                 Shop Now
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -78,22 +97,32 @@ export default async function Home() {
                       <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/0 to-emerald-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
                       {/* Image Container */}
-                      <div className="aspect-[4/3] relative bg-gray-50 rounded-xl mb-4 overflow-hidden flex items-center justify-center p-2 isolate">
-                        {/* Badge if needed */}
-                        {/* <div className="absolute top-2 left-2 z-10 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-1 rounded shadow-sm">NEW</div> */}
+                      <Link href={`/product/${product.id}`} className="block">
+                        <div className="aspect-[4/3] relative bg-gray-50 rounded-xl mb-4 overflow-hidden flex items-center justify-center p-2 isolate">
+                          {/* Wishlist Button - Absolute positioned, so it stays clickable on top if z-index is right */}
+                          {/* Note: Nested interactive elements can be tricky. Better to keep Wishlist button outside Link or handle propagation.
+                              But visually it's inside. Let's make the wrapper relative and put Link around image only?
+                              Or assume WishlistButton handles stopPropagation (which I did adding e.stopPropagation).
+                           */}
 
-                        {product.image ? (
-                          <img
-                            src={product.image}
-                            alt={product.nameEn}
-                            className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500"
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center justify-center text-gray-300">
-                            <span className="text-4xl mb-2">🥬</span>
-                            <span className="text-xs">No Image</span>
-                          </div>
-                        )}
+                          {product.image ? (
+                            <img
+                              src={product.image}
+                              alt={product.nameEn}
+                              className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="flex flex-col items-center justify-center text-gray-300">
+                              <span className="text-4xl mb-2">🥬</span>
+                              <span className="text-xs">No Image</span>
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+
+                      {/* Wishlist Button - Moved outside Link to avoid nesting constraint issues, but positioned absolutely */}
+                      <div className="absolute top-6 right-6 z-20">
+                        <WishlistButton productId={product.id} initialLiked={wishlistProductIds.has(product.id)} />
                       </div>
 
                       {/* Content */}
@@ -101,9 +130,11 @@ export default async function Home() {
                         <div className="mb-1 text-xs font-medium text-emerald-600 uppercase tracking-wide opacity-70">
                           {category.nameEn}
                         </div>
-                        <h3 className="font-bold text-gray-900 text-lg leading-tight mb-2 line-clamp-2 group-hover:text-emerald-700 transition-colors">
-                          {product.nameEn}
-                        </h3>
+                        <Link href={`/product/${product.id}`} className="hover:underline decoration-emerald-500">
+                          <h3 className="font-bold text-gray-900 text-lg leading-tight mb-2 line-clamp-2 group-hover:text-emerald-700 transition-colors">
+                            {product.nameEn}
+                          </h3>
+                        </Link>
                         <div className="text-sm text-gray-500 mb-4 bg-gray-50 inline-block self-start px-2 py-1 rounded">
                           {product.unit}
                         </div>

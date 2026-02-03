@@ -1,6 +1,7 @@
 'use client';
 
 import { ImageWithFallback } from './ui/image-with-fallback';
+import Link from 'next/link';
 import { Button } from './ui/button';
 import { useCartStore } from '@/lib/store';
 import { Plus, Minus } from 'lucide-react';
@@ -32,12 +33,16 @@ export function ProductList({ products }: { products: Product[] }) {
                 const qty = getItemQty(product.id);
 
                 return (
-                    <div key={product.id} className="border rounded-lg p-3 bg-white shadow-sm flex flex-col justify-between">
+                    <div key={product.id} className="border rounded-lg p-3 bg-white shadow-sm flex flex-col justify-between group">
                         <div>
-                            <div className="aspect-square bg-gray-100 rounded-md mb-2 overflow-hidden">
-                                <ImageWithFallback src={product.image || ''} alt={product.nameEn} />
-                            </div>
-                            <h3 className="font-medium text-sm line-clamp-2">{product.nameEn}</h3>
+                            <Link href={`/product/${product.id}`}>
+                                <div className="aspect-square bg-gray-100 rounded-md mb-2 overflow-hidden relative">
+                                    <ImageWithFallback src={product.image || ''} alt={product.nameEn} />
+                                </div>
+                            </Link>
+                            <Link href={`/product/${product.id}`}>
+                                <h3 className="font-medium text-sm line-clamp-2 group-hover:text-green-700 transition-colors">{product.nameEn}</h3>
+                            </Link>
                             <p className="text-xs text-gray-500">{product.nameHi}</p>
                             <div className="mt-2 font-bold text-green-700">₹{product.price} <span className="text-xs font-normal text-gray-500">/ {product.unit || 'unit'}</span></div>
                         </div>
