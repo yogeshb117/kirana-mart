@@ -44,12 +44,12 @@ export function ProductAddButton({ product }: { product: Product }) {
 
     if (quantity > 0) {
         return (
-            <div className="flex items-center bg-green-50 rounded-lg border border-green-200">
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-green-700 hover:text-green-800 hover:bg-green-100" onClick={handleDecrement}>
+            <div className="flex items-center bg-emerald-50 rounded-lg border border-emerald-200">
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-100" onClick={handleDecrement}>
                     <Minus className="h-3 w-3" />
                 </Button>
-                <span className="w-8 text-center text-sm font-bold text-green-700">{quantity}</span>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-green-700 hover:text-green-800 hover:bg-green-100" onClick={handleIncrement}>
+                <span className="w-8 text-center text-sm font-bold text-emerald-700">{quantity}</span>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-100" onClick={handleIncrement}>
                     <Plus className="h-3 w-3" />
                 </Button>
             </div>
@@ -60,7 +60,7 @@ export function ProductAddButton({ product }: { product: Product }) {
         <Button
             size="sm"
             variant="outline"
-            className="text-green-600 border-green-600 hover:bg-green-50 h-8 uppercase text-xs font-bold px-4"
+            className="text-emerald-600 border-emerald-600 hover:bg-emerald-50 h-8 uppercase text-xs font-bold px-4"
             onClick={handleAdd}
         >
             Add

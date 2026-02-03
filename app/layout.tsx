@@ -1,11 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Providers } from "./providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Shubh Lakshmi Kirana Mart",
@@ -17,7 +27,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#000000",
+  themeColor: "#047857", // Emerald 700
 };
 
 export default function RootLayout({
@@ -27,7 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-gray-50 min-h-screen flex flex-col`}>
+      <body className={`${inter.variable} ${outfit.variable} antialiased bg-background text-foreground min-h-screen flex flex-col`}>
         <Providers>
           <Navbar />
           <main className="flex-grow">{children}</main>
@@ -37,3 +47,4 @@ export default function RootLayout({
     </html>
   );
 }
+
